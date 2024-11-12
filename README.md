@@ -16,8 +16,8 @@ Pixiv Tag Fetcherは、Pixivのイラスト作品に関連するタグを簡単�
 // PixivのトークンとバージョンでPixivFetcherを初期化
 const fetcher = new PixivFetcher(pixiv.token, pixiv.version);
 
-// イラストタグを取得
-fetcher.fetchTags({ uid: "user_id", ids: ["illust_id"] }).then(tags => {
+// イラストタグを取得 何故かわからんがuid無くても使える
+fetcher.fetchTags({ uid: "364364", ids: ["114514"] }).then(tags => {
   console.log(tags);
 });
 

@@ -1,12 +1,12 @@
 const pixiv = {
   token: 'OTMxNDM2NDM2NDExNDUxNDkzMTU0NDQ=',
-  ver: 'ee14d1fa4b6d2b1dd35fd36bf6f3b64b9315b'
+  version: 'ee14d1fa4b6d2b1dd35fd36bf6f3b64b9315b'
 };
 
 class PixivFetcher {
   constructor(publicKey, version) {
-    this.key = publicKey;
-    this.ver = version;
+    this.publicKey = publicKey;
+    this.version = version;
     this.userId = this.getUser();
   }
   getUser() {
@@ -25,13 +25,13 @@ class PixivFetcher {
     try {
       const baggageItems = {
         "sentry-environment": "production",
-        "sentry-release": this.ver,
-        "sentry-public_key": this.key,
+        "sentry-release": this.version,
+        "sentry-public_key": this.publicKey,
         "sentry-trace_id": trace,
         "sentry-sample_rate": "0.0001"
       };
       const baggage = Object.entries(baggageItems).map(([key, value]) => `${key}=${value}`).join(",");
-      const response = await fetch(`https://www.pixiv.net/ajax/user/${target}/illusts?${query}&lang=ja&version=${this.ver}`, {
+      const response = await fetch(`https://www.pixiv.net/ajax/user/${target}/illusts?${query}&lang=ja&version=${this.version}`, {
         headers: {
           "accept": "application/json",
           "accept-language": "ja,en-US;q=0.9,en;q=0.8",
@@ -67,7 +67,7 @@ const InsertTag = async (element) => {
 
   if (global_popup && artid) {
     global_popup.innerHTML = `loading: ${target} id${artid}`;
-    const fetcher = new PixivFetcher(pixiv.token, pixiv.ver);
+    const fetcher = new PixivFetcher(pixiv.token, pixiv.version);
     const result = await fetcher.fetchTags({ uid: String(target), ids: [String(artid)] });
     global_popup.innerHTML = result ? JSON.stringify(result).replace(/[\[\]"]/g, "") : "No tags found";
   }

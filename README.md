@@ -9,7 +9,7 @@ Pixiv Tag Fetcherは、Pixivのイラスト作品に関連するタグを簡単�
 
 ## 使用方法
 
-1. **APIトークンとバージョンの設定**：`pixiv.token`と`pixiv.ver`の2つの値をPixivのAPI用トークンとバージョンで設定します。
+1. **APIトークンとバージョンの設定**：`pixiv.token`と`pixiv.version`の2つの値をPixivのAPI用トークンとバージョンで設定します。
 2. **PixivFetcherクラスのインスタンス作成**：`PixivFetcher`クラスのインスタンスを生成し、`fetchTags`メソッドでタグを取得します。
 #### sample
 ```js

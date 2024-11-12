@@ -4,16 +4,16 @@ Pixiv Tag Fetcherは、Pixivのイラスト作品に関連するタグを簡単�
 
 ## 機能概要
 
-- **Pixiv APIの利用**：Pixiv APIを通じて、イラストのタグ情報を取得できます。
+- **Pixiv APIの利用**：Pixivを通じて、イラストのタグ情報を取得できます。
 - **PixivFetcherクラス**：`PixivFetcher`クラスを使用して、イラスト作品のIDを指定するだけでタグ情報をリクエスト可能です。
 
 ## 使用方法
-
-1. **APIトークンとバージョンの設定**：`pixiv.token`と`pixiv.version`の2つの値をPixivのAPI用トークンとバージョンで設定します。
-2. **PixivFetcherクラスのインスタンス作成**：`PixivFetcher`クラスのインスタンスを生成し、`fetchTags`メソッドでタグを取得します。
+1. Pixiv APIの`token`と`version`は、ブラウザの開発者ツール内「ネットワーク」タブから取得してください。
+2. **APIトークンとバージョンの設定**：`pixiv.token`と`pixiv.version`の2つの値をPixivのAPI用トークンとバージョンで設定します。
+3. **PixivFetcherクラスのインスタンス作成**：`PixivFetcher`クラスのインスタンスを生成し、`fetchTags`メソッドでタグを取得します。
 #### sample
 ```js
-// Pixiv APIのトークンとバージョンでPixivFetcherを初期化
+// PixivのトークンとバージョンでPixivFetcherを初期化
 const fetcher = new PixivFetcher(pixiv.token, pixiv.version);
 
 // イラストタグを取得

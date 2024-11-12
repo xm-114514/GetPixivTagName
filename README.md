@@ -11,7 +11,7 @@ Pixiv Tag Fetcherは、Pixivのイラスト作品に関連するタグを簡単�
 1. Pixiv APIの`token`と`version`は、ブラウザの開発者ツール内「ネットワーク」タブから取得してください。
 2. **APIトークンとバージョンの設定**：`pixiv.token`と`pixiv.version`の2つの値をPixivのAPI用トークンとバージョンで設定します。
 3. **PixivFetcherクラスのインスタンス作成**：`PixivFetcher`クラスのインスタンスを生成し、`fetchTags`メソッドでタグを取得します。
-#### sample
+#### Sample
 ```js
 // PixivのトークンとバージョンでPixivFetcherを初期化
 const fetcher = new PixivFetcher(pixiv.token, pixiv.version);

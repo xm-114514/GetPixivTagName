@@ -80,13 +80,4 @@ class PixivFetcher {
     }
   }
 }
-
-
-const Artlist = [];
-const ImageAll = document.querySelectorAll("section ul > li a[data-gtm-user-id]");
-for (const art of ImageAll) Artlist.push(art.getAttribute("data-gtm-value"));
-
-const fetcher = new PixivFetcher();
-const result = await fetcher.fetchTags({ uid: "1", ids: Artlist });
-const Format = JSON.stringify(result);
 ```

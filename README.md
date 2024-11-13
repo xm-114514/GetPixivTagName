@@ -13,10 +13,13 @@ Pixiv Tag Fetcherは、Pixivのイラスト作品に関連するタグを簡単�
 3. **PixivFetcherクラスのインスタンス作成**：`PixivFetcher`クラスのインスタンスを生成し、`fetchTags`メソッドでタグを取得します。
 #### Sample
 ```js
-// PixivのトークンとバージョンでPixivFetcherを初期化
-// const fetcher = new PixivFetcher(pixiv.token, pixiv.version); token無くてもリクエストできるぽい
+/**
+ * PixivのトークンとバージョンでPixivFetcherを初期化 
+ * const fetcher = new PixivFetcher(pixiv.token, pixiv.version); token無くてもリクエストできる
+ * uidは何を指定してもok
+ * ids: ["114514","931500","3141"] 異なる作者の作品でも一括リクエスト可能
+*/ 
 
-// イラストタグを取得 何故かわからんがuid無くても使える
 fetcher.fetchTags({ uid: "364364", ids: ["114514"] }).then(tags => {
   console.log(tags);
 });

@@ -1,83 +1,111 @@
-const pixiv = {
-  token: 'OTMxNDM2NDM2NDExNDUxNDkzMTU0NDQ=',
-  version: 'ee14d1fa4b6d2b1dd35fd36bf6f3b64b9315b'
-};
-
 class PixivFetcher {
-  constructor(publicKey, version) {
-    this.publicKey = publicKey;
-    this.version = version;
-    this.userId = this.getUser();
-  }
-  getUser() {
-    return document.cookie.split("; ")
-      .find(row => row.includes("user_id="))
-      ?.split("=")[1] || window.dataLayer[0]?.user_id || !1;
-  }
+
   genId(len) {
-    return Array.from(crypto.getRandomValues(new Uint8Array(len))).map(byte => byte.toString(16).padStart(2,'0')).join('');
+    return Array.from(crypto.getRandomValues(new Uint8Array(len)))
+    .map(byte => byte.toString(16).padStart(2, '0')).join('');
+  }
+  async bookmarkdata(Id) {
+    const trace = this.genId(16);
+    const span = this.genId(8);
+
+    try {
+      const response = await fetch(`https://www.pixiv.net/ajax/illust/${Id}`, {
+        headers: {
+          "accept": "application/json",
+          "sentry-trace": `${trace}-${span}-0`,
+        },
+        referrer: `https://www.pixiv.net/artworks/${Id}`,
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    } catch (error) {console.error('Error fetching bookmark data:', error);}
   }
   async fetchIllustrations(target, illustIds) {
-    if (!this.userId) return !1;
     const trace = this.genId(16);
     const span = this.genId(8);
     const query = Array.isArray(illustIds) ? illustIds.map(id => `ids%5B%5D=${id}`).join('&') : `ids%5B%5D=${illustIds}`;
     try {
-      const baggageItems = {
-        "sentry-environment": "production",
-        "sentry-release": this.version,
-        "sentry-public_key": this.publicKey,
-        "sentry-trace_id": trace,
-        "sentry-sample_rate": "0.0001"
-      };
-      const baggage = Object.entries(baggageItems).map(([key, value]) => `${key}=${value}`).join(",");
-      const response = await fetch(`https://www.pixiv.net/ajax/user/${target}/illusts?${query}&lang=ja&version=${this.version}`, {
+      const response = await fetch(`https://www.pixiv.net/ajax/user/${target}/illusts?${query}`, {
         headers: {
           "accept": "application/json",
-          "accept-language": "ja,en-US;q=0.9,en;q=0.8",
-          "baggage": baggage,
-          "priority": "u=1, i",
-          "sec-ch-ua": "\"Not?A_Brand\";v=\"99\", \"Chromium\";v=\"130\"",
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": "\"macOS\"","sec-fetch-dest": "empty","sec-fetch-mode": "cors","sec-fetch-site": "same-origin",
           "sentry-trace": `${trace}-${span}-0`,
-          "x-user-id": this.userId
         },
-        referrer: "https://www.pixiv.net/",
-        method: "GET",
-        mode: "cors",
-        credentials: "include"
+        referrer: "https://www.pixiv.net/", method: "GET",
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       return await response.json();
     } catch (error) { console.error('Error fetching illustration data:', error); }
   }
-  async fetchTags(params = { uid: "1", ids: [] }) {
-    const data = await this.fetchIllustrations(params.uid, params.ids);
-    return data ? params.ids.map(id => data.body[id]?.tags).filter(Boolean) : !1;
+
+  async fetchTags(params = { uid: String(), ids: [] }) {
+    const target = params.uid || "1";
+    const illustIds = params.ids;
+    const li = [];
+    if (illustIds.length > 0) {
+      const data = await this.fetchIllustrations(target, illustIds);
+      if (data) {
+        for (const illust of illustIds) {
+          const tags = data["body"][illust.toString()]["tags"];
+          li.push(tags);
+        }
+      }
+      return li;
+    }
   }
 }
 
-let global_popup;
+const Artlist = [];
+const ImageAll = document.querySelectorAll("section ul > li a[data-gtm-user-id]");
+for (const art of ImageAll) Artlist.push(art.getAttribute("data-gtm-value"));
 
-const InsertTag = async (element) => {
-  const a = element.closest("a");
-  const artid = a.getAttribute("data-gtm-value");
-  const target = a.getAttribute("data-gtm-user-id");
+const fetcher = new PixivFetcher();
+const result = await fetcher.fetchTags({ uid: "1", ids: Artlist });
+const Format = JSON.stringify(result);
 
-  if (global_popup && artid) {
-    global_popup.innerHTML = `loading: ${target} id${artid}`;
-    const fetcher = new PixivFetcher(pixiv.token, pixiv.version);
-    const result = await fetcher.fetchTags({ uid: String(target), ids: [String(artid)] });
-    global_popup.innerHTML = result ? JSON.stringify(result).replace(/[\[\]"]/g, "") : "No tags found";
+const htm = document.querySelectorAll("section ul > li");
+for (let i = 0; i < htm.length; i++) { 
+  const art = htm[i];
+  const element = document.createElement("h3");
+  
+  const replace_tag = (text) => {
+    const words = ["000users入り"];
+    const colors = ["#699dff"];
+  
+    return words.reduce((acc, word, index) => {
+      const color = colors[index % colors.length];
+      const regex = new RegExp(word, "g");
+      return acc.replace(regex, `<span style='color:${color}; font-size:22px'>${word}</span>`);
+    }, String(text));
+  };
+  
+  element.innerHTML = replace_tag(result[i]) || "No tags found";
+  Object.assign(element.style, {
+    width: 'auto',
+    overflowWrap: 'break-word'
+  });
+
+  art.appendChild(element);
+}
+
+const InsertTag = async (element, popup) => {
+  const anchor = element.closest("a");
+  const artId = anchor?.getAttribute("data-gtm-value");
+  if (artId) {
+    popup.innerHTML = `loading: id${artId}`;
+    const data = await fetcher.bookmarkdata(artId);
+    const count = data.body.bookmarkCount;
+    popup.innerHTML = count || 0;
   }
 };
 
 document.addEventListener('mouseover', (event) => {
   const target = event.target;
+
   if (target.tagName === 'IMG') {
     const popup = document.createElement('div');
-    popup.className = 'popup';
+    popup.classList.add('popup');
+    popup.innerHTML = '';
     Object.assign(popup.style, {
       left: `${target.getBoundingClientRect().left + window.scrollX}px`,
       top: `${target.getBoundingClientRect().top + window.scrollY - 30}px`,
@@ -90,15 +118,12 @@ document.addEventListener('mouseover', (event) => {
       boxShadow: '5px 6px 13px 7px',
       fontSize: '20px'
     });
-    
-    global_popup = popup;
     document.body.appendChild(popup);
 
-    const shiftKeyHandler = (e) => e.key === 'Shift' && InsertTag(target);
-    document.addEventListener('keydown', shiftKeyHandler);
-    
+    const handleShiftKey = (e) => e.key === 'Shift' && InsertTag(target, popup);
+    document.addEventListener('keydown', handleShiftKey);
     target.addEventListener('mouseout', () => {
-      document.removeEventListener('keydown', shiftKeyHandler);
+      document.removeEventListener('keydown', handleShiftKey);
       popup.remove();
     }, { once: true });
   }

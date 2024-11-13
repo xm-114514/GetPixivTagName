@@ -31,30 +31,26 @@ const Format = JSON.stringify(result);
 ```javascript
 class PixivFetcher {
 
-  genId(len) {
+  GenId(len) {
     return Array.from(crypto.getRandomValues(new Uint8Array(len)))
     .map(byte => byte.toString(16).padStart(2, '0')).join('');
   }
   async bookmarkdata(Id) {
-    const trace = this.genId(16);
-    const span = this.genId(8);
-
+    const trace = this.GenId(16), span = this.GenId(8);
     try {
       const response = await fetch(`https://www.pixiv.net/ajax/illust/${Id}`, {
         headers: {
           "accept": "application/json",
           "sentry-trace": `${trace}-${span}-0`,
         },
-        referrer: `https://www.pixiv.net/artworks/${Id}`,
+        referrer: `https://www.pixiv.net/artworks/${Id}`, method: "GET",
       });
-
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       return await response.json();
     } catch (error) {console.error('Error fetching bookmark data:', error);}
   }
   async fetchIllustrations(target, illustIds) {
-    const trace = this.genId(16);
-    const span = this.genId(8);
+    const trace = this.GenId(16), span = this.GenId(8);
     const query = Array.isArray(illustIds) ? illustIds.map(id => `ids%5B%5D=${id}`).join('&') : `ids%5B%5D=${illustIds}`;
     try {
       const response = await fetch(`https://www.pixiv.net/ajax/user/${target}/illusts?${query}`, {
@@ -68,7 +64,6 @@ class PixivFetcher {
       return await response.json();
     } catch (error) { console.error('Error fetching illustration data:', error); }
   }
-
   async fetchTags(params = { uid: String(), ids: [] }) {
     const target = params.uid || "1";
     const illustIds = params.ids;
@@ -85,6 +80,7 @@ class PixivFetcher {
     }
   }
 }
+
 
 const Artlist = [];
 const ImageAll = document.querySelectorAll("section ul > li a[data-gtm-user-id]");

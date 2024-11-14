@@ -56,7 +56,6 @@ for (const art of ImageAll) Artlist.push(art.getAttribute("data-gtm-value"));
 
 const fetcher = new PixivFetcher();
 const result = await fetcher.fetchTags({ uid: "1", ids: Artlist });
-const Format = JSON.stringify(result);
 
 const htm = document.querySelectorAll("section ul > li");
 for (let i = 0; i < htm.length; i++) { 

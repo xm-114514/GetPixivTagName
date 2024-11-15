@@ -7,7 +7,7 @@ class Erectile {
       referrerPolicy: "strict-origin-when-cross-origin",
       method: "GET",
     });
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    if (!response.ok) throw new Error(response.status);
     return await response.json();
   }
 }
@@ -30,7 +30,5 @@ const compileBookmarkSummary = async(uid) => {
       };
       return result;
     }
-  } catch (e) { return e; }
+  } catch (e) { alert(e); }
 }
-const result = await compileBookmarkSummary( target=65461184, page=1 );
-console.log(result);

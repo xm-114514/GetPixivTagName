@@ -23,7 +23,6 @@ class PixivFetcher {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       return await response.json();
     } catch (error) {
-      console.error('Error fetching bookmark data:', error);
       throw error;
     }
   }
@@ -40,7 +39,6 @@ class PixivFetcher {
     } catch (e) { throw e; }
   }
   async fetchTags(params = { uid: '1', ids: [] }) {
-    console.log("fetch tag:", params);
     const { uid, ids: illustIds } = params;
     if (!illustIds.length) return [];
     try {
